@@ -110,6 +110,7 @@
     <button onclick="checkAnswer()">答え合わせ</button>
     <p id="result"></p>
     <p id="streak"></p>
+    <button id="nextBtn" onclick="resetGraph()" style="display:none;">次の問題へ</button>
   </div>
 
   <script>
@@ -185,32 +186,35 @@
     };
 
     resetGraph();
+    document.getElementById("nextBtn").style.display = "none";
 
-    function checkAnswer() {
-      const s1 = parseInt(document.getElementById("speed1").value);
-      const s2 = parseInt(document.getElementById("speed2").value);
-      const res = document.getElementById("result");
-      const streakDisplay = document.getElementById("streak");
+function checkAnswer() {
+  const s1 = parseInt(document.getElementById("speed1").value);
+  const s2 = parseInt(document.getElementById("speed2").value);
+  const res = document.getElementById("result");
+  const streakDisplay = document.getElementById("streak");
 
-      if (s1 === window.currentAnswer.a && s2 === window.currentAnswer.m) {
-        correctStreak++;
-        res.textContent = "正解！よくできました💮";
-        res.style.color = "green";
-      } else {
-        correctStreak = 0;
-        res.textContent = `残念！正しくは① ${window.currentAnswer.a} m/分、② ${window.currentAnswer.m} m/分 です。`;
-        res.style.color = "red";
-      }
+  if (s1 === window.currentAnswer.a && s2 === window.currentAnswer.m) {
+    correctStreak++;
+    res.textContent = "正解！よくできました💮";
+    res.style.color = "green";
+  } else {
+    correctStreak = 0;
+    res.textContent = `残念！正しくは① ${window.currentAnswer.a} m/分、② ${window.currentAnswer.m} m/分 です。`;
+    res.style.color = "red";
+  }
 
-      if (correctStreak > 0) {
-        streakDisplay.textContent = `${correctStreak}問連続正解中！`;
-        streakDisplay.style.color = "green";
-      } else {
-        streakDisplay.textContent = "";
-      }
+  if (correctStreak > 0) {
+    streakDisplay.textContent = `${correctStreak}問連続正解中！`;
+    streakDisplay.style.color = "green";
+  } else {
+    streakDisplay.textContent = "";
+  }
 
-      setTimeout(resetGraph, 3000);
-    }
+  // 自動では遷移しない → 「次へ」ボタンを表示
+  document.getElementById("nextBtn").style.display = "block";
+}
+
   </script>
 </body>
 </html>
