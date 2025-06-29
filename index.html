@@ -132,15 +132,15 @@
     };
 
     const resetGraph = () => {
-      const a = Math.floor(Math.random() * 40 + 10);
-      const p = Math.floor(Math.random() * 20 + 5);
+      const a = Math.floor(Math.random() * 15 + 10);
+      const p = Math.floor(Math.random() * 15 + 5);
       const y1 = a * p;
 
       const m = (Math.random() < 0.5)
         ? a + Math.floor(Math.random() * 10 + 1)
         : a - Math.floor(Math.random() * Math.min(10, a - 1) + 1);
 
-      const q = p + Math.floor(Math.random() * 20 + 5);
+      const q = p + Math.floor(Math.random() * 15 + 5);
       const y2 = y1 + m * (q - p);
 
       drawAxes();
