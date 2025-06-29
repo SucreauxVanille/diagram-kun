@@ -115,38 +115,45 @@
   <script>
     const svg = document.getElementById("graph");
     const w = 400, h = 300, margin = 40;
-    const xMax = 40, yMax = 500;
+    const xMax = 40;
 
     const scaleX = x => margin + (x / xMax) * (w - margin - 10);
-    const scaleY = y => (h - margin) - (y / yMax) * (h - margin - 10);
+    const scaleY = (y, yMax) => (h - margin) - (y / yMax) * (h - margin - 10);
 
     let correctStreak = 0;
 
-    const drawAxes = () => {
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    const drawAxes = (yMax) => {
       svg.innerHTML = `
         <line x1="${margin}" y1="${h - margin}" x2="${w}" y2="${h - margin}" stroke="black"/>
         <line x1="${margin}" y1="${0}" x2="${margin}" y2="${h - margin}" stroke="black"/>
-        <text x="${w - 60}" y="${h - 15}" class="axis-label">時間（分）</text>
+        <text x="${(margin + w) / 2}" y="${h - 10}" class="axis-label" text-anchor="middle">時間（分）</text>
         <text x="5" y="15" class="axis-label">距離（m）</text>
       `;
     };
 
     const resetGraph = () => {
-      const a = Math.floor(Math.random() * 15 + 10);
-      const p = Math.floor(Math.random() * 15 + 5);
+      // 値の生成
+      let a = randInt(10, 60);
+      let m;
+      do {
+        m = randInt(10, 60);
+      } while (m === a);
+
+      const q = randInt(6, 37);
+      const p = randInt(3, q - 3);
+
       const y1 = a * p;
-
-      const m = (Math.random() < 0.5)
-        ? a + Math.floor(Math.random() * 10 + 1)
-        : a - Math.floor(Math.random() * Math.min(10, a - 1) + 1);
-
-      const q = p + Math.floor(Math.random() * 15 + 5);
       const y2 = y1 + m * (q - p);
+      const yMax = Math.ceil(y2 / 100) * 100 + 100;
 
-      drawAxes();
+      drawAxes(yMax);
 
-      const path1 = `<line x1="${scaleX(0)}" y1="${scaleY(0)}" x2="${scaleX(p)}" y2="${scaleY(y1)}" stroke="blue" stroke-width="2"/>`;
-      const path2 = `<line x1="${scaleX(p)}" y1="${scaleY(y1)}" x2="${scaleX(q)}" y2="${scaleY(y2)}" stroke="blue" stroke-width="2"/>`;
+      const path1 = `<line x1="${scaleX(0)}" y1="${scaleY(0, yMax)}" x2="${scaleX(p)}" y2="${scaleY(y1, yMax)}" stroke="blue" stroke-width="2"/>`;
+      const path2 = `<line x1="${scaleX(p)}" y1="${scaleY(y1, yMax)}" x2="${scaleX(q)}" y2="${scaleY(y2, yMax)}" stroke="blue" stroke-width="2"/>`;
 
       const points = [
         { x: p, y: y1 },
@@ -156,12 +163,12 @@
       let extras = "";
       for (const pt of points) {
         const sx = scaleX(pt.x);
-        const sy = scaleY(pt.y);
+        const sy = scaleY(pt.y, yMax);
         extras += `
           <circle cx="${sx}" cy="${sy}" r="4" class="dot"/>
-          <line x1="${sx}" y1="${sy}" x2="${sx}" y2="${scaleY(0)}" class="guide-line"/>
+          <line x1="${sx}" y1="${sy}" x2="${sx}" y2="${scaleY(0, yMax)}" class="guide-line"/>
           <line x1="${sx}" y1="${sy}" x2="${scaleX(0)}" y2="${sy}" class="guide-line"/>
-          <text x="${sx - 5}" y="${scaleY(0) + 15}" class="axis-label">${pt.x}</text>
+          <text x="${sx - 5}" y="${scaleY(0, yMax) + 15}" class="axis-label">${pt.x}</text>
           <text x="${scaleX(0) - 25}" y="${sy + 5}" class="axis-label">${pt.y}</text>
         `;
       }
@@ -195,7 +202,6 @@
         res.style.color = "red";
       }
 
-      // 連続正解表示
       if (correctStreak > 0) {
         streakDisplay.textContent = `${correctStreak}問連続正解中！`;
         streakDisplay.style.color = "green";
@@ -203,7 +209,6 @@
         streakDisplay.textContent = "";
       }
 
-      // 次の問題（3秒後）
       setTimeout(resetGraph, 3000);
     }
   </script>
