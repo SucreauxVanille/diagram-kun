@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ダイヤグラム君</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    svg { background-color: #f9f9f9; }
+    input { width: 50px; margin-right: 10px; }
+    .axis-label { font-size: 12px; fill: #333; }
+    .dot { fill: red; }
+    .guide-line { stroke: gray; stroke-dasharray: 4; }
+  </style>
+</head>
+<body>
+  <h2>ダイヤグラム君</h2>
+  <p>Aくんは、一定の速さで家から駅まで向かっていました。途中で時計を見たAくんは、駅に向かう速度を変えました。次のグラフは、その時の移動時間と移動距離の関係を示したものです。</p>
+
+  <svg id="graph" width="400" height="300"></svg>
+
+  <p>このとき、</p>
+  <ol>
+    <li>① 家から時計を見るまでのAくんの分速：<input type="number" id="speed1"> m/分</li>
+    <li>② 時計を見てから駅までのAくんの分速：<input type="number" id="speed2"> m/分</li>
+  </ol>
+  <button onclick="checkAnswer()">答え合わせ</button>
+  <p id="result"></p>
+
+  <script>
+    const svg = document.getElementById("graph");
+    const w = 400, h = 300, margin = 40;
+    const xMax = 40, yMax = 500;
+
+    // 軸の描画
+    const drawAxes = () => {
+      svg.innerHTML = `
+        <line x1="${margin}" y1="${h - margin}" x2="${w}" y2="${h - margin}" stroke="black"/>
+        <line x1="${margin}" y1="${0}" x2="${margin}" y2="${h - margin}" stroke="black"/>
+        <text x="${w - 30}" y="${h - 10}" class="axis-label">時間（分）</text>
+        <text x="5" y="15" class="axis-label">距離（m）</text>
+      `;
+    };
+
+    // 値 → 座標変換
+    const scaleX = x => margin + (x / xMax) * (w - margin - 10);
+    const scaleY = y => (h - margin) - (y / yMax) * (h - margin - 10);
+
+    // 問題データ生成
+    const a = Math.floor(Math.random() * 10 + 10); // 前半の速さ（10〜19）
+    const p = Math.floor(Math.random() * 10 + 5);  // 時計を見る時間（5〜14）
+    const y1 = a * p;
+
+    const m = (Math.random() < 0.5) ? a + Math.floor(Math.random() * 5 + 1)
+                                    : a - Math.floor(Math.random() * Math.min(5, a - 1) + 1); // 後半の速さ
+    const q = p + Math.floor(Math.random() * 10 + 5); // 到着時間（p+5〜p+14）
+    const y2 = y1 + m * (q - p);
+
+    // 描画
+    drawAxes();
+
+    // 折れ線グラフ
+    const path1 = `<line x1="${scaleX(0)}" y1="${scaleY(0)}" x2="${scaleX(p)}" y2="${scaleY(y1)}" stroke="blue" stroke-width="2"/>`;
+    const path2 = `<line x1="${scaleX(p)}" y1="${scaleY(y1)}" x2="${scaleX(q)}" y2="${scaleY(y2)}" stroke="blue" stroke-width="2"/>`;
+
+    // ●と補助線・軸ラベル（x軸にp, q／y軸にy1, y2）
+    const points = [
+      { x: p, y: y1 },
+      { x: q, y: y2 }
+    ];
+
+    let extras = "";
+    for (const pt of points) {
+      const sx = scaleX(pt.x);
+      const sy = scaleY(pt.y);
+      extras += `
+        <circle cx="${sx}" cy="${sy}" r="4" class="dot"/>
+        <line x1="${sx}" y1="${sy}" x2="${sx}" y2="${scaleY(0)}" class="guide-line"/>
+        <line x1="${sx}" y1="${sy}" x2="${scaleX(0)}" y2="${sy}" class="guide-line"/>
+        <text x="${sx - 5}" y="${scaleY(0) + 15}" class="axis-label">${pt.x}</text>
+        <text x="${scaleX(0) - 25}" y="${sy + 5}" class="axis-label">${pt.y}</text>
+      `;
+    }
+
+    svg.innerHTML += path1 + path2 + extras;
+
+    // 正解チェック
+    function checkAnswer() {
+      const s1 = parseInt(document.getElementById("speed1").value);
+      const s2 = parseInt(document.getElementById("speed2").value);
+      const res = document.getElementById("result");
+      if (s1 === a && s2 === m) {
+        res.textContent = "正解！よくできました💮";
+        res.style.color = "green";
+      } else {
+        res.textContent = `残念！正しくは① ${a} m/分、② ${m} m/分 です。`;
+        res.style.color = "red";
+      }
+    }
+  </script>
+</body>
+</html>
